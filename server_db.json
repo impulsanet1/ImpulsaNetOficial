@@ -1,0 +1,593 @@
+{
+  "admin": {
+    "email": "admin@impulsanet.com",
+    "password": "admin_password_2026"
+  },
+  "settings": {
+    "whatsappNumber": "573208354198",
+    "instagramUrl": "https://instagram.com/impulsanet_oficial",
+    "whatsappChannelUrl": "https://whatsapp.com/channel/0029VaZ8g7B9Bb6v8xX0A83A",
+    "bannerPromoText": "🔥 ¡PROMO SEMANAL! Usa el cupón IMPULSA10 para un 10% de descuento en todo tu carrito.",
+    "bannerPromoActive": true,
+    "maintenanceMode": false,
+    "logoText": "IMPULSANET",
+    "heroTitle": "No solo vendemos seguidores. Construimos autoridad.",
+    "heroSubtitle": "La plataforma definitiva para creadores y marcas que buscan acelerar su crecimiento en redes sociales de forma segura, duradera y configurable.",
+    "footerText": "La plataforma oficial para impulsar la reputación digital, autoridad y posicionamiento de marcas y creadores en toda Latinoamérica.",
+    "whatsappSectionText": "¿Necesitas un plan personalizado? Contáctanos por WhatsApp.",
+    "colorPrimary": "#4F46E5",
+    "colorSecondary": "#7C3AED",
+    "colorButtons": "#4F46E5",
+    "colorTexts": "#09090B",
+    "colorBg": "#F8F9FA",
+    "colorMenu": "#FFFFFF"
+  },
+  "networks": [
+    {
+      "id": "ig",
+      "name": "Instagram",
+      "icon": "Instagram",
+      "color": "pink-500",
+      "slug": "instagram",
+      "active": true
+    },
+    {
+      "id": "tk",
+      "name": "TikTok",
+      "icon": "Music2",
+      "color": "neutral-900",
+      "slug": "tiktok",
+      "active": true
+    },
+    {
+      "id": "fb",
+      "name": "Facebook",
+      "icon": "Facebook",
+      "color": "blue-600",
+      "slug": "facebook",
+      "active": true
+    },
+    {
+      "id": "yt",
+      "name": "YouTube",
+      "icon": "Youtube",
+      "color": "red-600",
+      "slug": "youtube",
+      "active": true
+    }
+  ],
+  "services": [
+    {
+      "id": "ig-followers",
+      "networkId": "ig",
+      "name": "Seguidores",
+      "description": "Seguidores de alta calidad para posicionar tu cuenta de Instagram.",
+      "type": "followers",
+      "active": true
+    },
+    {
+      "id": "ig-likes",
+      "networkId": "ig",
+      "name": "Likes",
+      "description": "Likes para tus publicaciones, fotos o Reels de Instagram.",
+      "type": "likes",
+      "active": true
+    },
+    {
+      "id": "ig-views",
+      "networkId": "ig",
+      "name": "Vistas de Reels",
+      "description": "Aumenta el alcance de tus Reels con reproducciones rápidas.",
+      "type": "views",
+      "active": true
+    },
+    {
+      "id": "ig-comments",
+      "networkId": "ig",
+      "name": "Comentarios",
+      "description": "Comentarios personalizados para generar conversación en tu perfil.",
+      "type": "comments",
+      "active": true
+    },
+    {
+      "id": "tk-followers",
+      "networkId": "tk",
+      "name": "Seguidores",
+      "description": "Aumenta tus seguidores de TikTok para desbloquear funciones live.",
+      "type": "followers",
+      "active": true
+    },
+    {
+      "id": "tk-likes",
+      "networkId": "tk",
+      "name": "Likes",
+      "description": "Likes reales para empujar tus videos de TikTok al feed \"Para Ti\".",
+      "type": "likes",
+      "active": true
+    },
+    {
+      "id": "tk-views",
+      "networkId": "tk",
+      "name": "Vistas de Video",
+      "description": "Vistas rápidas para mejorar el algoritmo de visualización de tus videos.",
+      "type": "views",
+      "active": true
+    },
+    {
+      "id": "fb-likes",
+      "networkId": "fb",
+      "name": "Likes de Página/Post",
+      "description": "Lleva confianza y reputación digital a tu Fanpage de Facebook.",
+      "type": "likes",
+      "active": true
+    },
+    {
+      "id": "yt-subscribers",
+      "networkId": "yt",
+      "name": "Suscriptores",
+      "description": "Suscriptores estables para monetizar tu canal de YouTube.",
+      "type": "followers",
+      "active": true
+    },
+    {
+      "id": "yt-views",
+      "networkId": "yt",
+      "name": "Vistas de Video",
+      "description": "Vistas premium de alta retención para tus videos de YouTube.",
+      "type": "views",
+      "active": true
+    }
+  ],
+  "variants": [
+    {
+      "id": "ig-fol-1k",
+      "serviceId": "ig-followers",
+      "quantity": 1000,
+      "price": 30000,
+      "oldPrice": 45000,
+      "label": "best_seller",
+      "isBestValue": false,
+      "active": true
+    },
+    {
+      "id": "ig-fol-2k",
+      "serviceId": "ig-followers",
+      "quantity": 2000,
+      "price": 45000,
+      "oldPrice": 90000,
+      "label": "none",
+      "isBestValue": false,
+      "active": true
+    },
+    {
+      "id": "ig-fol-5k",
+      "serviceId": "ig-followers",
+      "quantity": 5000,
+      "price": 80000,
+      "oldPrice": 225000,
+      "label": "none",
+      "isBestValue": false,
+      "active": true
+    },
+    {
+      "id": "ig-fol-10k",
+      "serviceId": "ig-followers",
+      "quantity": 10000,
+      "price": 110000,
+      "oldPrice": 450000,
+      "label": "best_price",
+      "isBestValue": true,
+      "active": true
+    },
+    {
+      "id": "ig-lik-1k",
+      "serviceId": "ig-likes",
+      "quantity": 1000,
+      "price": 15000,
+      "oldPrice": 25000,
+      "label": "none",
+      "isBestValue": false,
+      "active": true
+    },
+    {
+      "id": "ig-lik-5k",
+      "serviceId": "ig-likes",
+      "quantity": 5000,
+      "price": 40000,
+      "oldPrice": 125000,
+      "label": "best_seller",
+      "isBestValue": false,
+      "active": true
+    },
+    {
+      "id": "ig-lik-10k",
+      "serviceId": "ig-likes",
+      "quantity": 10000,
+      "price": 65000,
+      "oldPrice": 250000,
+      "label": "best_price",
+      "isBestValue": true,
+      "active": true
+    },
+    {
+      "id": "ig-viw-5k",
+      "serviceId": "ig-views",
+      "quantity": 5000,
+      "price": 10000,
+      "oldPrice": 20000,
+      "label": "none",
+      "isBestValue": false,
+      "active": true
+    },
+    {
+      "id": "ig-viw-20k",
+      "serviceId": "ig-views",
+      "quantity": 20000,
+      "price": 25000,
+      "oldPrice": 80000,
+      "label": "best_seller",
+      "isBestValue": true,
+      "active": true
+    },
+    {
+      "id": "ig-com-50",
+      "serviceId": "ig-comments",
+      "quantity": 50,
+      "price": 20000,
+      "oldPrice": 35000,
+      "label": "none",
+      "isBestValue": false,
+      "active": true
+    },
+    {
+      "id": "ig-com-100",
+      "serviceId": "ig-comments",
+      "quantity": 100,
+      "price": 35000,
+      "oldPrice": 70000,
+      "label": "best_seller",
+      "isBestValue": true,
+      "active": true
+    },
+    {
+      "id": "tk-fol-1k",
+      "serviceId": "tk-followers",
+      "quantity": 1000,
+      "price": 35000,
+      "oldPrice": 50000,
+      "label": "none",
+      "isBestValue": false,
+      "active": true
+    },
+    {
+      "id": "tk-fol-5k",
+      "serviceId": "tk-followers",
+      "quantity": 5000,
+      "price": 120000,
+      "oldPrice": 250000,
+      "label": "best_seller",
+      "isBestValue": true,
+      "active": true
+    },
+    {
+      "id": "tk-lik-1k",
+      "serviceId": "tk-likes",
+      "quantity": 1000,
+      "price": 18000,
+      "oldPrice": 30000,
+      "label": "none",
+      "isBestValue": false,
+      "active": true
+    },
+    {
+      "id": "tk-lik-5k",
+      "serviceId": "tk-likes",
+      "quantity": 5000,
+      "price": 55000,
+      "oldPrice": 150000,
+      "label": "best_seller",
+      "isBestValue": true,
+      "active": true
+    },
+    {
+      "id": "tk-viw-10k",
+      "serviceId": "tk-views",
+      "quantity": 10000,
+      "price": 8000,
+      "oldPrice": 15000,
+      "label": "none",
+      "isBestValue": false,
+      "active": true
+    },
+    {
+      "id": "tk-viw-50k",
+      "serviceId": "tk-views",
+      "quantity": 50000,
+      "price": 25000,
+      "oldPrice": 75000,
+      "label": "best_seller",
+      "isBestValue": true,
+      "active": true
+    },
+    {
+      "id": "fb-lik-1k",
+      "serviceId": "fb-likes",
+      "quantity": 1000,
+      "price": 22000,
+      "oldPrice": 35000,
+      "label": "none",
+      "isBestValue": false,
+      "active": true
+    },
+    {
+      "id": "fb-lik-5k",
+      "serviceId": "fb-likes",
+      "quantity": 5000,
+      "price": 75000,
+      "oldPrice": 175000,
+      "label": "best_seller",
+      "isBestValue": true,
+      "active": true
+    },
+    {
+      "id": "yt-sub-500",
+      "serviceId": "yt-subscribers",
+      "quantity": 500,
+      "price": 60000,
+      "oldPrice": 90000,
+      "label": "none",
+      "isBestValue": false,
+      "active": true
+    },
+    {
+      "id": "yt-sub-1k",
+      "serviceId": "yt-subscribers",
+      "quantity": 1000,
+      "price": 110000,
+      "oldPrice": 180000,
+      "label": "best_seller",
+      "isBestValue": true,
+      "active": true
+    },
+    {
+      "id": "yt-viw-2k",
+      "serviceId": "yt-views",
+      "quantity": 2000,
+      "price": 30000,
+      "oldPrice": 50000,
+      "label": "none",
+      "isBestValue": false,
+      "active": true
+    },
+    {
+      "id": "yt-viw-10k",
+      "serviceId": "yt-views",
+      "quantity": 10000,
+      "price": 120000,
+      "oldPrice": 250000,
+      "label": "best_seller",
+      "isBestValue": true,
+      "active": true
+    }
+  ],
+  "combos": [
+    {
+      "id": "combo-viral-ig",
+      "name": "Combo Instagram Viral",
+      "description": "El kit perfecto para que tu video de Instagram alcance la pestaña Explorar y se viralice.",
+      "items": [
+        {
+          "networkId": "ig",
+          "serviceId": "ig-followers",
+          "variantId": "ig-fol-2k",
+          "quantity": 2000,
+          "name": "2,000 Seguidores Instagram"
+        },
+        {
+          "networkId": "ig",
+          "serviceId": "ig-likes",
+          "variantId": "ig-lik-5k",
+          "quantity": 5000,
+          "name": "5,000 Likes de Instagram"
+        },
+        {
+          "networkId": "ig",
+          "serviceId": "ig-views",
+          "variantId": "ig-viw-20k",
+          "quantity": 20000,
+          "name": "20,000 Vistas de Reels"
+        }
+      ],
+      "totalPrice": 95000,
+      "originalPrice": 110000,
+      "active": true,
+      "tag": "Combo Viral"
+    },
+    {
+      "id": "combo-tiktok-creator",
+      "name": "Combo Creador TikTok",
+      "description": "Aumenta tus números de forma balanceada y sube el engagement de tu cuenta de TikTok.",
+      "items": [
+        {
+          "networkId": "tk",
+          "serviceId": "tk-followers",
+          "variantId": "tk-fol-1k",
+          "quantity": 1000,
+          "name": "1,000 Seguidores TikTok"
+        },
+        {
+          "networkId": "tk",
+          "serviceId": "tk-likes",
+          "variantId": "tk-lik-5k",
+          "quantity": 5000,
+          "name": "5,000 Likes de TikTok"
+        },
+        {
+          "networkId": "tk",
+          "serviceId": "tk-views",
+          "variantId": "tk-viw-50k",
+          "quantity": 50000,
+          "name": "50,000 Vistas de Video"
+        }
+      ],
+      "totalPrice": 98000,
+      "originalPrice": 115000,
+      "active": true,
+      "tag": "Empuje Algoritmo"
+    }
+  ],
+  "coupons": [
+    {
+      "id": "c1",
+      "code": "IMPULSA10",
+      "type": "percent",
+      "value": 10,
+      "expiryDate": "2026-12-31",
+      "usageLimit": 500,
+      "currentUsage": 23,
+      "active": true
+    },
+    {
+      "id": "c2",
+      "code": "BIENVENIDO",
+      "type": "fixed",
+      "value": 15000,
+      "expiryDate": "2026-12-31",
+      "usageLimit": 100,
+      "currentUsage": 12,
+      "active": true
+    }
+  ],
+  "recommendations": [
+    {
+      "id": "rec-1",
+      "triggerServiceType": "followers",
+      "suggestedServiceId": "ig-likes",
+      "message": "¡Recomendado! Añade likes reales para balancear tu crecimiento de forma orgánica.",
+      "active": true
+    },
+    {
+      "id": "rec-2",
+      "triggerServiceType": "followers",
+      "suggestedServiceId": "ig-views",
+      "message": "Los Reels populares necesitan reproducciones. ¡Añade vistas para potenciar tu alcance!",
+      "active": true
+    },
+    {
+      "id": "rec-3",
+      "triggerServiceType": "likes",
+      "suggestedServiceId": "ig-followers",
+      "message": "¿Tienes interacción pero no seguidores? Consigue un perfil sólido sumando nuevos fans.",
+      "active": true
+    }
+  ],
+  "orders": [
+    {
+      "id": "ORD-1049",
+      "customerName": "Carlos Mendoza",
+      "customerPhone": "+57 312 876 5432",
+      "date": "2026-07-15 14:32",
+      "itemsSummary": "Instagram (Seguidores Premium) x5,000, Instagram (Likes Reales) x1,000",
+      "total": 95000,
+      "status": "pendiente",
+      "goal": "Impulsar mi negocio"
+    },
+    {
+      "id": "ORD-1048",
+      "customerName": "Valeria Gómez",
+      "customerPhone": "+57 300 456 7890",
+      "date": "2026-07-14 09:15",
+      "itemsSummary": "Combo TikTok Creator Especial",
+      "total": 98000,
+      "status": "entregado",
+      "goal": "Más interacción"
+    },
+    {
+      "id": "ORD-1047",
+      "customerName": "Andrés Felipe",
+      "customerPhone": "+57 321 765 4321",
+      "date": "2026-07-13 18:44",
+      "itemsSummary": "Instagram (Seguidores Premium) x10,000",
+      "total": 110000,
+      "status": "entregado",
+      "goal": "Mejorar mi perfil"
+    }
+  ],
+  "clients": [
+    {
+      "id": "CLI-001",
+      "name": "Carlos Mendoza",
+      "phone": "+57 312 876 5432",
+      "ordersCount": 4,
+      "totalSpent": 240000,
+      "tier": "Socio VIP"
+    },
+    {
+      "id": "CLI-002",
+      "name": "Valeria Gómez",
+      "phone": "+57 300 456 7890",
+      "ordersCount": 1,
+      "totalSpent": 98000,
+      "tier": "Regular"
+    },
+    {
+      "id": "CLI-003",
+      "name": "Sergio Vargas",
+      "phone": "+57 311 999 8888",
+      "ordersCount": 12,
+      "totalSpent": 850000,
+      "tier": "Revendedor"
+    }
+  ],
+  "resellers": [
+    {
+      "id": "RES-001",
+      "name": "Sergio Vargas Agency",
+      "city": "Medellín",
+      "phone": "+57 311 999 8888",
+      "description": "Agencia de marketing premium dedicada a impulsar cuentas de creadores de contenido de alto impacto.",
+      "status": "activo",
+      "image": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=256",
+      "order": 1
+    },
+    {
+      "id": "RES-002",
+      "name": "MediaBoost Colombia",
+      "city": "Bogotá",
+      "phone": "+57 315 222 3333",
+      "description": "Expertos en posicionamiento acelerado y campañas virales para comercio electrónico y marcas personales.",
+      "status": "activo",
+      "image": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=256",
+      "order": 2
+    }
+  ],
+  "plans": [
+    {
+      "id": "plan-basic",
+      "name": "Plan Crecimiento Inicial",
+      "price": 150000,
+      "billing": "mensual",
+      "features": [
+        "Gestión básica de 1 red social",
+        "10,000 Vistas garantizadas al mes",
+        "Soporte prioritario por WhatsApp",
+        "Reporte mensual de rendimiento"
+      ],
+      "active": true
+    },
+    {
+      "id": "plan-pro",
+      "name": "Plan Autoridad Absoluta",
+      "price": 350000,
+      "billing": "mensual",
+      "features": [
+        "Gestión completa de 2 redes sociales",
+        "30,000 Vistas + 5,000 Likes al mes",
+        "Estrategia de hashtags optimizada",
+        "Diseño de 4 publicaciones profesionales",
+        "Soporte prioritario 24/7"
+      ],
+      "active": true
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "ImpulsaNet",
+  "description": "Plataforma premium para el crecimiento y posicionamiento en redes sociales.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,237 @@
+{
+  "entities": {
+    "Admin": {
+      "title": "Admin User",
+      "description": "Authorized admin users who can access the control panel",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "role": { "type": "string" }
+      },
+      "required": ["email", "role"]
+    },
+    "GlobalSettings": {
+      "title": "Global Settings",
+      "description": "Global application branding, contacts, and metadata",
+      "type": "object",
+      "properties": {
+        "whatsappNumber": { "type": "string" },
+        "instagramUrl": { "type": "string" },
+        "whatsappChannelUrl": { "type": "string" },
+        "bannerPromoText": { "type": "string" },
+        "bannerPromoActive": { "type": "boolean" },
+        "maintenanceMode": { "type": "boolean" },
+        "logoText": { "type": "string" },
+        "heroTitle": { "type": "string" },
+        "heroSubtitle": { "type": "string" },
+        "footerText": { "type": "string" },
+        "whatsappSectionText": { "type": "string" },
+        "colorPrimary": { "type": "string" },
+        "colorSecondary": { "type": "string" },
+        "colorButtons": { "type": "string" },
+        "colorTexts": { "type": "string" },
+        "colorBg": { "type": "string" },
+        "colorMenu": { "type": "string" }
+      }
+    },
+    "Network": {
+      "title": "Social Network",
+      "description": "Social media platforms supported by the catalog",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "icon": { "type": "string" },
+        "color": { "type": "string" },
+        "slug": { "type": "string" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["id", "name", "slug", "active"]
+    },
+    "Service": {
+      "title": "Service",
+      "description": "Individual services offered on each network",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "networkId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "type": { "type": "string" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["id", "networkId", "name", "active"]
+    },
+    "Variant": {
+      "title": "Variant",
+      "description": "Pricing package tiers for individual services",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "serviceId": { "type": "string" },
+        "quantity": { "type": "integer" },
+        "price": { "type": "integer" },
+        "oldPrice": { "type": "integer" },
+        "label": { "type": "string" },
+        "isBestValue": { "type": "boolean" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["id", "serviceId", "quantity", "price", "active"]
+    },
+    "Combo": {
+      "title": "Combo",
+      "description": "Bundled services sold together at discount",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "totalPrice": { "type": "integer" },
+        "originalPrice": { "type": "integer" },
+        "active": { "type": "boolean" },
+        "tag": { "type": "string" },
+        "items": { "type": "array" }
+      },
+      "required": ["id", "name", "totalPrice", "active"]
+    },
+    "Coupon": {
+      "title": "Coupon",
+      "description": "Discount coupon codes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string" },
+        "type": { "type": "string" },
+        "value": { "type": "integer" },
+        "expiryDate": { "type": "string" },
+        "usageLimit": { "type": "integer" },
+        "currentUsage": { "type": "integer" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["id", "code", "type", "value", "active"]
+    },
+    "Recommendation": {
+      "title": "Recommendation",
+      "description": "Upsell suggestions based on client products",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "triggerServiceType": { "type": "string" },
+        "suggestedServiceId": { "type": "string" },
+        "message": { "type": "string" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["id", "triggerServiceType", "suggestedServiceId", "message", "active"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer order details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "date": { "type": "string" },
+        "itemsSummary": { "type": "string" },
+        "total": { "type": "integer" },
+        "status": { "type": "string" },
+        "goal": { "type": "string" }
+      },
+      "required": ["id", "customerName", "customerPhone", "total", "status"]
+    },
+    "Client": {
+      "title": "Client",
+      "description": "Registered clients profiles",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "ordersCount": { "type": "integer" },
+        "totalSpent": { "type": "integer" },
+        "tier": { "type": "string" }
+      },
+      "required": ["id", "name", "phone"]
+    },
+    "Reseller": {
+      "title": "Reseller",
+      "description": "Affiliated resellers catalog",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "city": { "type": "string" },
+        "phone": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "type": "string" },
+        "image": { "type": "string" },
+        "order": { "type": "integer" }
+      },
+      "required": ["id", "name", "city", "status", "order"]
+    },
+    "Plan": {
+      "title": "Plan",
+      "description": "Subscription plans offered to resellers/business",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "integer" },
+        "billing": { "type": "string" },
+        "features": { "type": "array" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["id", "name", "price", "billing", "active"]
+    }
+  },
+  "firestore": {
+    "/admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Master list of administrators"
+    },
+    "/settings/{settingsId}": {
+      "schema": "GlobalSettings",
+      "description": "Global customization parameters"
+    },
+    "/networks/{networkId}": {
+      "schema": "Network",
+      "description": "Social networks database"
+    },
+    "/services/{serviceId}": {
+      "schema": "Service",
+      "description": "Offered services database"
+    },
+    "/variants/{variantId}": {
+      "schema": "Variant",
+      "description": "Pricing tiers database"
+    },
+    "/combos/{comboId}": {
+      "schema": "Combo",
+      "description": "Combos list database"
+    },
+    "/coupons/{couponId}": {
+      "schema": "Coupon",
+      "description": "Coupon list database"
+    },
+    "/recommendations/{recommendationId}": {
+      "schema": "Recommendation",
+      "description": "Upsell suggestions database"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Placed orders history"
+    },
+    "/clients/{clientId}": {
+      "schema": "Client",
+      "description": "Customer list"
+    },
+    "/resellers/{resellerId}": {
+      "schema": "Reseller",
+      "description": "Resellers roster"
+    },
+    "/plans/{planId}": {
+      "schema": "Plan",
+      "description": "Roster of subscription plans"
+    }
+  }
+}

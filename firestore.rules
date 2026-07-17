@@ -1,0 +1,108 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net: Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- REUSABLE SECURITY HELPERS ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'estebanruiz.12vrgassergio@gmail.com' ||
+        request.auth.token.email == 'admin@impulsanet.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // --- COLLECTION RULES ---
+
+    // Admins Collection
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && (request.auth.uid == adminId || isAdmin());
+    }
+
+    // Global Settings
+    match /settings/{settingsId} {
+      allow read: if true; // Publicly readable for branding and maintenance-mode check
+      allow write: if isAdmin();
+    }
+
+    // Networks
+    match /networks/{networkId} {
+      allow read: if true; // Publicly readable for catalog display
+      allow write: if isAdmin();
+    }
+
+    // Services
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Variants
+    match /variants/{variantId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Combos
+    match /combos/{comboId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Coupons
+    match /coupons/{couponId} {
+      allow read: if true; // Required for guests to validate coupons client-side
+      allow write: if isAdmin();
+    }
+
+    // Recommendations
+    match /recommendations/{recommendationId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Orders (PII Protection)
+    match /orders/{orderId} {
+      // Orders contain customer names and phone numbers.
+      // Only admins can read the orders collection.
+      allow read: if isAdmin();
+      // Guests can create orders to complete checkout.
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    // Clients (PII Protection)
+    match /clients/{clientId} {
+      // Only admins can read client directories.
+      allow read: if isAdmin();
+      // Guests can create or update client profiles when placing orders.
+      allow create, update: if true;
+      allow delete: if isAdmin();
+    }
+
+    // Resellers
+    match /resellers/{resellerId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Plans
+    match /plans/{planId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}
