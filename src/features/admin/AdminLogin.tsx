@@ -11,13 +11,12 @@ interface AdminLoginProps {
 }
 
 export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel }) => {
-  const { adminLogin, adminRegister } = useApp();
+  const { adminLogin } = useApp();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [isRegister, setIsRegister] = useState(false);
   const [resetSent, setResetSent] = useState(false);
 
   const handleResetPassword = async () => {
@@ -50,34 +49,21 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel }) =
     setLoading(true);
     
     try {
-      if (isRegister) {
-        const ok = await adminRegister(email, password);
-        if (ok) {
-          onSuccess();
-        } else {
-          setError('No se pudo registrar el administrador.');
-        }
+      const ok = await adminLogin(email, password);
+      if (ok) {
+        onSuccess();
       } else {
-        const ok = await adminLogin(email, password);
-        if (ok) {
-          onSuccess();
-        } else {
-          setError('Credenciales inválidas o acceso no autorizado.');
-        }
+        setError('Credenciales inválidas o acceso no autorizado.');
       }
     } catch (err: any) {
-      console.error("Login/Register catch block:", err);
+      console.error("Login catch block:", err);
       const code = err?.code || '';
       const message = err?.message || '';
       
       if (code === 'auth/operation-not-allowed') {
         setError('⚠️ Error: El inicio de sesión con Correo/Contraseña no está activado en tu consola de Firebase. Dirígete a la consola de Firebase > Authentication > Sign-in method y activa "Correo electrónico/contraseña".');
-      } else if (code === 'auth/weak-password') {
-        setError('⚠️ Contraseña débil: La contraseña de administrador debe tener al menos 6 caracteres.');
-      } else if (code === 'auth/email-already-in-use') {
-        setError('⚠️ Correo registrado: Este correo electrónico ya se encuentra registrado. Intenta iniciar sesión.');
       } else if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
-        setError('Credenciales inválidas (correo o contraseña incorrectos). Si aún no has creado tu usuario, cámbiate a la pestaña "Registrar Administrador" abajo.');
+        setError('Credenciales inválidas (correo o contraseña incorrectos). Si no tienes una cuenta de administrador, ponte en contacto con el propietario o administrador principal.');
       } else if (message.includes('offline') || code === 'unavailable') {
         setError('⚠️ Error de conexión: No se pudo conectar con Firebase. Asegúrate de tener conexión a Internet.');
       } else {
@@ -107,12 +93,10 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel }) =
             <Shield size={22} fill="currentColor" className="fill-indigo-100" />
           </div>
           <h2 className="text-2xl font-black text-zinc-900 tracking-tight">
-            {isRegister ? 'Registro Administrativo' : 'Acceso Administrativo'}
+            Acceso Administrativo
           </h2>
           <p className="text-zinc-500 text-xs font-semibold">
-            {isRegister 
-              ? 'Crea una cuenta para gestionar de forma segura el catálogo y pedidos.' 
-              : 'Inicia sesión de forma segura para gestionar el catálogo del sitio.'}
+            Inicia sesión de forma segura para gestionar el catálogo del sitio.
           </p>
         </div>
 
@@ -150,21 +134,19 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel }) =
           <div className="space-y-1.5">
             <div className="flex justify-between items-center">
               <label className="text-[11px] font-black uppercase tracking-widest text-zinc-400">Contraseña</label>
-              {!isRegister && (
-                <button
-                  type="button"
-                  onClick={handleResetPassword}
-                  className="text-[10px] font-black uppercase tracking-wider text-indigo-600 hover:text-indigo-800 transition-colors focus:outline-none cursor-pointer"
-                >
-                  ¿La olvidaste?
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={handleResetPassword}
+                className="text-[10px] font-black uppercase tracking-wider text-indigo-600 hover:text-indigo-800 transition-colors focus:outline-none cursor-pointer"
+              >
+                ¿La olvidaste?
+              </button>
             </div>
             <div className="relative">
               <Key size={16} className="absolute left-4 top-4 text-zinc-400" />
               <input
                 type={showPassword ? 'text' : 'password'}
-                placeholder={isRegister ? 'Mínimo 6 caracteres' : 'Ingresa tu contraseña'}
+                placeholder="Ingresa tu contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -182,30 +164,13 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel }) =
           </div>
 
           <Button type="submit" variant="primary" fullWidth disabled={loading} className="py-3.5 font-bold mt-2 rounded-xl">
-            {loading 
-              ? (isRegister ? 'Registrando...' : 'Iniciando Sesión...') 
-              : (isRegister ? 'Registrar y Entrar' : 'Iniciar Sesión')}
+            {loading ? 'Iniciando Sesión...' : 'Iniciar Sesión'}
           </Button>
         </form>
-
-        <div className="text-center pt-2">
-          <button
-            type="button"
-            onClick={() => {
-              setIsRegister(!isRegister);
-              setError(null);
-              setResetSent(false);
-            }}
-            className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors focus:outline-none"
-          >
-            {isRegister 
-              ? '¿Ya tienes una cuenta de administrador? Inicia sesión' 
-              : '¿No tienes cuenta? Crea un usuario administrador'}
-          </button>
-        </div>
 
       </div>
     </div>
   );
 };
+
 export default AdminLogin;

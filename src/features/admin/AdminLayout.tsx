@@ -23,7 +23,11 @@ import {
   Palette,
   Eye,
   Sliders,
-  Award
+  Award,
+  Copy,
+  GripVertical,
+  ChevronUp,
+  ChevronDown
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -56,6 +60,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
   const [serviceNetworkId, setServiceNetworkId] = useState('ig');
   const [serviceDesc, setServiceDesc] = useState('');
   const [serviceType, setServiceType] = useState('followers');
+  const [servicePlatformTab, setServicePlatformTab] = useState<string>('all');
 
   // Variant form fields
   const [selectedServiceIdForVariants, setSelectedServiceIdForVariants] = useState<string>(services[0]?.id || '');
@@ -66,6 +71,132 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
 
   // Coupon form fields
   const [formCode, setFormCode] = useState('');
+
+  // --- CUSTOM CONFIRM MODAL STATE ---
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  });
+
+  // --- DRAG & DROP REORDERING STATES & HANDLERS ---
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [draggedType, setDraggedType] = useState<'network' | 'service' | 'variant' | 'combo' | null>(null);
+
+  const [tempNetworks, setTempNetworks] = useState<Network[] | null>(null);
+  const [tempServices, setTempServices] = useState<Service[] | null>(null);
+  const [tempVariants, setTempVariants] = useState<Variant[] | null>(null);
+  const [tempCombos, setTempCombos] = useState<Combo[] | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, index: number, type: 'network' | 'service' | 'variant' | 'combo') => {
+    setDraggedIndex(index);
+    setDraggedType(type);
+    setTempNetworks(networks);
+    setTempServices(services);
+    setTempVariants(variants);
+    setTempCombos(combos);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, overIndex: number, type: 'network' | 'service' | 'variant' | 'combo') => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedType !== type || draggedIndex === overIndex) return;
+
+    if (type === 'network' && tempNetworks) {
+      const list = [...tempNetworks];
+      const draggedItem = list[draggedIndex];
+      list.splice(draggedIndex, 1);
+      list.splice(overIndex, 0, draggedItem);
+      setDraggedIndex(overIndex);
+      setTempNetworks(list);
+    } else if (type === 'service' && tempServices) {
+      const list = [...tempServices];
+      const draggedItem = list[draggedIndex];
+      list.splice(draggedIndex, 1);
+      list.splice(overIndex, 0, draggedItem);
+      setDraggedIndex(overIndex);
+      setTempServices(list);
+    } else if (type === 'variant' && tempVariants) {
+      const activeVariants = tempVariants.filter(v => v.serviceId === selectedServiceIdForVariants);
+      const otherVariants = tempVariants.filter(v => v.serviceId !== selectedServiceIdForVariants);
+      const draggedItem = activeVariants[draggedIndex];
+      const list = [...activeVariants];
+      list.splice(draggedIndex, 1);
+      list.splice(overIndex, 0, draggedItem);
+      setDraggedIndex(overIndex);
+      setTempVariants([...list, ...otherVariants]);
+    } else if (type === 'combo' && tempCombos) {
+      const list = [...tempCombos];
+      const draggedItem = list[draggedIndex];
+      list.splice(draggedIndex, 1);
+      list.splice(overIndex, 0, draggedItem);
+      setDraggedIndex(overIndex);
+      setTempCombos(list);
+    }
+  };
+
+  const handleDragEnd = () => {
+    if (draggedType === 'network' && tempNetworks) {
+      updateNetworks(tempNetworks);
+    } else if (draggedType === 'service' && tempServices) {
+      updateServices(tempServices);
+    } else if (draggedType === 'variant' && tempVariants) {
+      updateVariants(tempVariants);
+    } else if (draggedType === 'combo' && tempCombos) {
+      updateCombos(tempCombos);
+    }
+
+    setDraggedIndex(null);
+    setDraggedType(null);
+    setActiveDragId(null);
+    setTempNetworks(null);
+    setTempServices(null);
+    setTempVariants(null);
+    setTempCombos(null);
+  };
+
+  const moveItem = (index: number, direction: 'up' | 'down', type: 'network' | 'service' | 'variant' | 'combo') => {
+    const overIndex = direction === 'up' ? index - 1 : index + 1;
+
+    if (type === 'network') {
+      if (overIndex < 0 || overIndex >= networks.length) return;
+      const list = [...networks];
+      const draggedItem = list[index];
+      list.splice(index, 1);
+      list.splice(overIndex, 0, draggedItem);
+      updateNetworks(list);
+    } else if (type === 'service') {
+      if (overIndex < 0 || overIndex >= services.length) return;
+      const list = [...services];
+      const draggedItem = list[index];
+      list.splice(index, 1);
+      list.splice(overIndex, 0, draggedItem);
+      updateServices(list);
+    } else if (type === 'variant') {
+      const activeVariants = variants.filter(v => v.serviceId === selectedServiceIdForVariants);
+      if (overIndex < 0 || overIndex >= activeVariants.length) return;
+      const otherVariants = variants.filter(v => v.serviceId !== selectedServiceIdForVariants);
+      const draggedItem = activeVariants[index];
+      const list = [...activeVariants];
+      list.splice(index, 1);
+      list.splice(overIndex, 0, draggedItem);
+      updateVariants([...list, ...otherVariants]);
+    } else if (type === 'combo') {
+      if (overIndex < 0 || overIndex >= combos.length) return;
+      const list = [...combos];
+      const draggedItem = list[index];
+      list.splice(index, 1);
+      list.splice(overIndex, 0, draggedItem);
+      updateCombos(list);
+    }
+  };
   const [formCouponType, setFormCouponType] = useState<'percent' | 'fixed'>('percent');
   const [formValue, setFormValue] = useState(10);
   const [formExpiry, setFormExpiry] = useState('');
@@ -107,6 +238,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
       setSettingsForm({ ...settings });
     }
   }, [settings]);
+
+  // Auto-select first service for variant packages when services list loads
+  React.useEffect(() => {
+    if (services.length > 0 && (!selectedServiceIdForVariants || !services.some(s => s.id === selectedServiceIdForVariants))) {
+      setSelectedServiceIdForVariants(services[0].id);
+    }
+  }, [services, selectedServiceIdForVariants]);
 
   // --- ACTIONS HANDLERS ---
   const handleSaveSettings = (e: React.FormEvent) => {
@@ -160,9 +298,60 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
   };
 
   const handleDeleteNetwork = (id: string) => {
-    if (confirm('¿Eliminar esta red social? Se eliminarán también sus servicios y paquetes asociados.')) {
-      updateNetworks(networks.filter(n => n.id !== id));
-      updateServices(services.filter(s => s.networkId !== id));
+    setConfirmModal({
+      isOpen: true,
+      title: '¿Eliminar red social?',
+      message: 'Se eliminarán también todos sus servicios y paquetes asociados de forma permanente.',
+      onConfirm: () => {
+        updateNetworks(networks.filter(n => n.id !== id));
+        updateServices(services.filter(s => s.networkId !== id));
+      }
+    });
+  };
+
+  const handleDuplicateNetwork = (net: Network) => {
+    const newNetworkId = Math.random().toString(36).substring(2, 9);
+    const duplicatedNetwork: Network = {
+      ...net,
+      id: newNetworkId,
+      name: `${net.name} (Copia)`,
+      slug: `${net.slug}-copia-${Math.random().toString(36).substring(2, 5)}`,
+      active: net.active
+    };
+
+    const originalServices = services.filter(s => s.networkId === net.id);
+    const duplicatedServices: Service[] = [];
+    const allDuplicatedVariants: Variant[] = [];
+
+    originalServices.forEach(s => {
+      const newServiceId = `${newNetworkId}-${Math.random().toString(36).substring(2, 6)}`;
+      const dupS: Service = {
+        ...s,
+        id: newServiceId,
+        networkId: newNetworkId,
+        name: s.name,
+        active: s.active
+      };
+      duplicatedServices.push(dupS);
+
+      const serviceVars = variants.filter(v => v.serviceId === s.id);
+      serviceVars.forEach(v => {
+        const dupV: Variant = {
+          ...v,
+          id: Math.random().toString(36).substring(2, 9),
+          serviceId: newServiceId,
+          active: v.active
+        };
+        allDuplicatedVariants.push(dupV);
+      });
+    });
+
+    updateNetworks([...networks, duplicatedNetwork]);
+    if (duplicatedServices.length > 0) {
+      updateServices([...services, ...duplicatedServices]);
+    }
+    if (allDuplicatedVariants.length > 0) {
+      updateVariants([...variants, ...allDuplicatedVariants]);
     }
   };
 
@@ -214,9 +403,37 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
   };
 
   const handleDeleteService = (id: string) => {
-    if (confirm('¿Seguro que deseas eliminar este servicio? Se borrarán sus paquetes.')) {
-      updateServices(services.filter(s => s.id !== id));
-      updateVariants(variants.filter(v => v.serviceId !== id));
+    setConfirmModal({
+      isOpen: true,
+      title: '¿Eliminar servicio?',
+      message: '¿Seguro que deseas eliminar este servicio? Se borrarán sus paquetes asociados de forma permanente.',
+      onConfirm: () => {
+        updateServices(services.filter(s => s.id !== id));
+        updateVariants(variants.filter(v => v.serviceId !== id));
+      }
+    });
+  };
+
+  const handleDuplicateService = (s: Service) => {
+    const newServiceId = `${s.networkId}-${Math.random().toString(36).substring(2, 6)}`;
+    const duplicatedService: Service = {
+      ...s,
+      id: newServiceId,
+      name: `${s.name} (Copia)`,
+      active: s.active
+    };
+
+    const originalVariants = variants.filter(v => v.serviceId === s.id);
+    const duplicatedVariants = originalVariants.map(v => ({
+      ...v,
+      id: Math.random().toString(36).substring(2, 9),
+      serviceId: newServiceId,
+      active: v.active
+    }));
+
+    updateServices([...services, duplicatedService]);
+    if (duplicatedVariants.length > 0) {
+      updateVariants([...variants, ...duplicatedVariants]);
     }
   };
 
@@ -271,9 +488,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
   };
 
   const handleDeleteVariant = (id: string) => {
-    if (confirm('¿Eliminar este paquete de precio?')) {
-      updateVariants(variants.filter(v => v.id !== id));
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: '¿Eliminar paquete?',
+      message: '¿Seguro que deseas eliminar este paquete de precio de forma permanente?',
+      onConfirm: () => {
+        updateVariants(variants.filter(v => v.id !== id));
+      }
+    });
   };
 
   // --- COUPONS CRUD ---
@@ -329,9 +551,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
   };
 
   const handleDeleteCoupon = (id: string) => {
-    if (confirm('¿Eliminar este cupón de descuento?')) {
-      updateCoupons(coupons.filter(c => c.id !== id));
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: '¿Eliminar cupón?',
+      message: '¿Seguro que deseas eliminar este cupón de descuento?',
+      onConfirm: () => {
+        updateCoupons(coupons.filter(c => c.id !== id));
+      }
+    });
   };
 
   // --- RESELLERS CRUD ---
@@ -390,9 +617,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
   };
 
   const handleDeleteReseller = (id: string) => {
-    if (confirm('¿Seguro que deseas eliminar este revendedor de la lista pública?')) {
-      updateResellers(resellers.filter(r => r.id !== id));
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: '¿Eliminar revendedor?',
+      message: '¿Seguro que deseas eliminar este revendedor de la lista pública?',
+      onConfirm: () => {
+        updateResellers(resellers.filter(r => r.id !== id));
+      }
+    });
   };
 
   // --- MONTHLY PLANS CRUD ---
@@ -444,9 +676,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
   };
 
   const handleDeletePlan = (id: string) => {
-    if (confirm('¿Eliminar este plan de suscripción mensual?')) {
-      updatePlans(plans.filter(p => p.id !== id));
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: '¿Eliminar plan mensual?',
+      message: '¿Seguro que deseas eliminar este plan de suscripción mensual?',
+      onConfirm: () => {
+        updatePlans(plans.filter(p => p.id !== id));
+      }
+    });
   };
 
   // --- COMBOS CRUD ---
@@ -519,9 +756,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
   };
 
   const handleDeleteCombo = (id: string) => {
-    if (confirm('¿Eliminar este combo multiplataforma?')) {
-      updateCombos(combos.filter(c => c.id !== id));
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: '¿Eliminar combo multiplataforma?',
+      message: '¿Seguro que deseas eliminar este combo multiplataforma?',
+      onConfirm: () => {
+        updateCombos(combos.filter(c => c.id !== id));
+      }
+    });
   };
 
   // --- RECOMMENDATIONS CRUD ---
@@ -568,9 +810,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
   };
 
   const handleDeleteRec = (id: string) => {
-    if (confirm('¿Eliminar esta recomendación de venta cruzada?')) {
-      updateRecommendations(recommendations.filter(r => r.id !== id));
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: '¿Eliminar recomendación?',
+      message: '¿Seguro que deseas eliminar esta recomendación de venta cruzada?',
+      onConfirm: () => {
+        updateRecommendations(recommendations.filter(r => r.id !== id));
+      }
+    });
   };
 
   // --- STATS LOGIC ---
@@ -802,9 +1049,38 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {networks.map((net) => (
-                    <div key={net.id} className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center justify-between">
+                  {(tempNetworks || networks).map((net, idx) => (
+                    <div 
+                      key={net.id} 
+                      draggable={activeDragId === net.id} 
+                      onDragStart={(e) => handleDragStart(e, idx, 'network')}
+                      onDragOver={(e) => handleDragOver(e, idx, 'network')}
+                      onDragEnd={handleDragEnd}
+                      className={`p-5 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center justify-between transition-all ${
+                        draggedIndex === idx && draggedType === 'network' ? 'opacity-40 scale-95 border-dashed border-indigo-400' : 'hover:shadow-md'
+                      }`}
+                    >
                       <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1 text-zinc-400">
+                          <span 
+                            onMouseDown={() => setActiveDragId(net.id)}
+                            onTouchStart={() => setActiveDragId(net.id)}
+                            onMouseUp={() => setActiveDragId(null)}
+                            onTouchEnd={() => setActiveDragId(null)}
+                            className="cursor-grab active:cursor-grabbing p-1 hover:bg-zinc-200/50 rounded shrink-0" 
+                            title="Arrastrar para reordenar"
+                          >
+                            <GripVertical size={16} />
+                          </span>
+                          <div className="flex flex-col">
+                            <button onClick={(e) => { e.stopPropagation(); moveItem(idx, 'up', 'network'); }} disabled={idx === 0} className="p-0.5 hover:bg-zinc-200/50 rounded disabled:opacity-30 cursor-pointer">
+                              <ChevronUp size={12} />
+                            </button>
+                            <button onClick={(e) => { e.stopPropagation(); moveItem(idx, 'down', 'network'); }} disabled={idx === (tempNetworks || networks).length - 1} className="p-0.5 hover:bg-zinc-200/50 rounded disabled:opacity-30 cursor-pointer">
+                              <ChevronDown size={12} />
+                            </button>
+                          </div>
+                        </div>
                         <span className="text-2xl">{net.icon}</span>
                         <div>
                           <h4 className="font-extrabold text-zinc-950 text-sm leading-tight">{net.name}</h4>
@@ -814,10 +1090,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
                         </div>
                       </div>
                       <div className="flex gap-1.5">
-                        <button onClick={() => handleEditNetwork(net)} className="p-2 hover:bg-white rounded-lg text-zinc-500 hover:text-black transition-colors">
+                        <button onClick={(e) => { e.stopPropagation(); handleDuplicateNetwork(net); }} title="Duplicar red social" className="p-2 hover:bg-white rounded-lg text-indigo-500 hover:text-indigo-700 transition-colors">
+                          <Copy size={16} />
+                        </button>
+                        <button onClick={(e) => { e.stopPropagation(); handleEditNetwork(net); }} className="p-2 hover:bg-white rounded-lg text-zinc-500 hover:text-black transition-colors">
                           <Edit3 size={16} />
                         </button>
-                        <button onClick={() => handleDeleteNetwork(net.id)} className="p-2 hover:bg-red-50 rounded-lg text-red-500 transition-colors">
+                        <button onClick={(e) => { e.stopPropagation(); handleDeleteNetwork(net.id); }} className="p-2 hover:bg-red-50 rounded-lg text-red-500 transition-colors">
                           <Trash2 size={16} />
                         </button>
                       </div>
@@ -828,47 +1107,109 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
 
               {/* Services CRUD */}
               <div className="bg-white border border-zinc-200 rounded-3xl p-6 shadow-sm">
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                   <div>
                     <h3 className="font-extrabold text-zinc-950 text-lg">Servicios por Plataforma</h3>
                     <p className="text-zinc-500 text-xs font-semibold">Configura los servicios ofrecidos (Seguidores, Likes, Comentarios, etc.)</p>
                   </div>
-                  <Button variant="secondary" size="sm" onClick={handleCreateService} className="flex items-center gap-1">
+                  <Button variant="secondary" size="sm" onClick={handleCreateService} className="flex items-center gap-1 shrink-0 self-start sm:self-auto">
                     <Plus size={16} /> Nuevo Servicio
                   </Button>
                 </div>
 
+                {/* Platform Filter Tabs */}
+                <div className="flex flex-wrap gap-2 mb-6 pb-4 border-b border-zinc-100">
+                  <button
+                    onClick={() => setServicePlatformTab('all')}
+                    className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                      servicePlatformTab === 'all'
+                        ? 'bg-zinc-950 text-white shadow-sm'
+                        : 'bg-zinc-100 text-zinc-500 hover:bg-zinc-200/80 hover:text-zinc-800'
+                    }`}
+                  >
+                    Todos
+                  </button>
+                  {networks.map(net => (
+                    <button
+                      key={net.id}
+                      onClick={() => setServicePlatformTab(net.id)}
+                      className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                        servicePlatformTab === net.id
+                          ? 'bg-indigo-600 text-white shadow-sm'
+                          : 'bg-zinc-100 text-zinc-500 hover:bg-zinc-200/80 hover:text-zinc-800'
+                      }`}
+                    >
+                      {net.name}
+                    </button>
+                  ))}
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {services.map((s) => {
-                    const parentNet = networks.find(n => n.id === s.networkId);
-                    return (
-                      <div key={s.id} className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200 flex flex-col justify-between space-y-4">
-                        <div>
-                          <div className="flex justify-between items-start">
-                            <span className="text-xs font-black uppercase tracking-widest bg-zinc-200/60 text-zinc-700 px-2 py-0.5 rounded">
-                              {parentNet ? parentNet.name : s.networkId}
-                            </span>
-                            <span className={`text-[10px] font-black uppercase tracking-wider ${s.active ? 'text-emerald-600' : 'text-zinc-400'}`}>
-                              {s.active ? 'Activo' : 'Inactivo'}
+                  {(tempServices || services)
+                    .filter(s => servicePlatformTab === 'all' || s.networkId === servicePlatformTab)
+                    .map((s) => {
+                      const originalIdx = (tempServices || services).findIndex(item => item.id === s.id);
+                      const parentNet = networks.find(n => n.id === s.networkId);
+                      return (
+                        <div 
+                          key={s.id} 
+                          draggable={activeDragId === s.id} 
+                          onDragStart={(e) => handleDragStart(e, originalIdx, 'service')}
+                          onDragOver={(e) => handleDragOver(e, originalIdx, 'service')}
+                          onDragEnd={handleDragEnd}
+                          className={`p-5 rounded-2xl bg-zinc-50 border border-zinc-200 flex flex-col justify-between space-y-4 transition-all ${
+                            draggedIndex === originalIdx && draggedType === 'service' ? 'opacity-40 scale-95 border-dashed border-indigo-400' : 'hover:shadow-md'
+                          }`}
+                        >
+                          <div>
+                            <div className="flex justify-between items-start">
+                              <div className="flex items-center gap-1.5 text-zinc-400">
+                                <span 
+                                  onMouseDown={() => setActiveDragId(s.id)}
+                                  onTouchStart={() => setActiveDragId(s.id)}
+                                  onMouseUp={() => setActiveDragId(null)}
+                                  onTouchEnd={() => setActiveDragId(null)}
+                                  className="cursor-grab active:cursor-grabbing p-1 hover:bg-zinc-200/50 rounded shrink-0" 
+                                  title="Arrastrar para reordenar"
+                                >
+                                  <GripVertical size={14} />
+                                </span>
+                                <div className="flex flex-col mr-1">
+                                  <button onClick={(e) => { e.stopPropagation(); moveItem(originalIdx, 'up', 'service'); }} disabled={originalIdx === 0} className="p-0.5 hover:bg-zinc-200/50 rounded disabled:opacity-30 cursor-pointer">
+                                    <ChevronUp size={10} />
+                                  </button>
+                                  <button onClick={(e) => { e.stopPropagation(); moveItem(originalIdx, 'down', 'service'); }} disabled={originalIdx === (tempServices || services).length - 1} className="p-0.5 hover:bg-zinc-200/50 rounded disabled:opacity-30 cursor-pointer">
+                                    <ChevronDown size={10} />
+                                  </button>
+                                </div>
+                                <span className="text-xs font-black uppercase tracking-widest bg-zinc-200/60 text-zinc-700 px-2 py-0.5 rounded ml-1">
+                                  {parentNet ? parentNet.name : s.networkId}
+                                </span>
+                              </div>
+                              <span className={`text-[10px] font-black uppercase tracking-wider ${s.active ? 'text-emerald-600' : 'text-zinc-400'}`}>
+                                {s.active ? 'Activo' : 'Inactivo'}
+                              </span>
+                            </div>
+                            <h4 className="font-extrabold text-zinc-950 text-base mt-2">{s.name}</h4>
+                            <p className="text-zinc-500 text-xs mt-1 leading-relaxed">{s.description}</p>
+                            <span className="inline-block mt-2 text-[10px] font-mono bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded">
+                              ID Tipo: {s.type}
                             </span>
                           </div>
-                          <h4 className="font-extrabold text-zinc-950 text-base mt-2">{s.name}</h4>
-                          <p className="text-zinc-500 text-xs mt-1 leading-relaxed">{s.description}</p>
-                          <span className="inline-block mt-2 text-[10px] font-mono bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded">
-                            ID Tipo: {s.type}
-                          </span>
+                          <div className="flex gap-1.5 justify-end border-t border-zinc-200/50 pt-3">
+                            <button onClick={(e) => { e.stopPropagation(); handleDuplicateService(s); }} title="Duplicar servicio" className="p-2 hover:bg-white rounded-lg text-indigo-500 hover:text-indigo-700 transition-colors">
+                              <Copy size={15} />
+                            </button>
+                            <button onClick={(e) => { e.stopPropagation(); handleEditService(s); }} className="p-2 hover:bg-white rounded-lg text-zinc-500 hover:text-black transition-colors">
+                              <Edit3 size={15} />
+                            </button>
+                            <button onClick={(e) => { e.stopPropagation(); handleDeleteService(s.id); }} className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors">
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
                         </div>
-                        <div className="flex gap-1.5 justify-end border-t border-zinc-200/50 pt-3">
-                          <button onClick={() => handleEditService(s)} className="p-2 hover:bg-white rounded-lg text-zinc-500 hover:text-black transition-colors">
-                            <Edit3 size={15} />
-                          </button>
-                          <button onClick={() => handleDeleteService(s.id)} className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors">
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                 </div>
               </div>
 
@@ -904,7 +1245,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
                   <table className="w-full text-left text-sm">
                     <thead>
                       <tr className="border-b border-zinc-100 text-zinc-400 text-xs font-black uppercase bg-zinc-50">
-                        <th className="p-4 pl-6">Cantidad</th>
+                        <th className="p-4 pl-6 w-24">Orden</th>
+                        <th className="p-4">Cantidad</th>
                         <th className="p-4">Precio Final</th>
                         <th className="p-4">Precio Anterior (Tachado)</th>
                         <th className="p-4">Etiqueta Badge</th>
@@ -914,11 +1256,41 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-zinc-50 font-semibold text-zinc-800">
-                      {variants.filter(v => v.serviceId === selectedServiceIdForVariants).map((v) => {
+                      {(tempVariants || variants).filter(v => v.serviceId === selectedServiceIdForVariants).map((v, idx) => {
                         const unitCost = v.price / v.quantity;
+                        const activeVariantsCount = (tempVariants || variants).filter(va => va.serviceId === selectedServiceIdForVariants).length;
                         return (
-                          <tr key={v.id} className="hover:bg-zinc-50/30">
-                            <td className="p-4 pl-6 font-black text-base">{v.quantity.toLocaleString()}</td>
+                          <tr 
+                            key={v.id} 
+                            draggable={activeDragId === v.id} 
+                            onDragStart={(e) => handleDragStart(e, idx, 'variant')}
+                            onDragOver={(e) => handleDragOver(e, idx, 'variant')}
+                            onDragEnd={handleDragEnd}
+                            className={`hover:bg-zinc-50/30 transition-all ${
+                              draggedIndex === idx && draggedType === 'variant' ? 'opacity-40 bg-zinc-100' : ''
+                            }`}
+                          >
+                            <td className="p-4 pl-6 text-zinc-400 flex items-center gap-1">
+                              <span 
+                                onMouseDown={() => setActiveDragId(v.id)}
+                                onTouchStart={() => setActiveDragId(v.id)}
+                                onMouseUp={() => setActiveDragId(null)}
+                                onTouchEnd={() => setActiveDragId(null)}
+                                className="cursor-grab active:cursor-grabbing p-1 hover:bg-zinc-200/50 rounded shrink-0" 
+                                title="Arrastrar para reordenar"
+                              >
+                                <GripVertical size={14} />
+                              </span>
+                              <div className="flex flex-col">
+                                <button onClick={(e) => { e.stopPropagation(); moveItem(idx, 'up', 'variant'); }} disabled={idx === 0} className="p-0.5 hover:bg-zinc-200/50 rounded disabled:opacity-30 cursor-pointer">
+                                  <ChevronUp size={10} />
+                                </button>
+                                <button onClick={(e) => { e.stopPropagation(); moveItem(idx, 'down', 'variant'); }} disabled={idx === activeVariantsCount - 1} className="p-0.5 hover:bg-zinc-200/50 rounded disabled:opacity-30 cursor-pointer">
+                                  <ChevronDown size={10} />
+                                </button>
+                              </div>
+                            </td>
+                            <td className="p-4 font-black text-base">{v.quantity.toLocaleString()}</td>
                             <td className="p-4 text-indigo-600 font-extrabold">${v.price.toLocaleString()} COP</td>
                             <td className="p-4 text-zinc-400 text-xs line-through">{v.oldPrice ? `$${v.oldPrice.toLocaleString()}` : 'Ninguno'}</td>
                             <td className="p-4">
@@ -935,10 +1307,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
                               </span>
                             </td>
                             <td className="p-4 pr-6 text-right space-x-1.5">
-                              <button onClick={() => handleEditVariant(v)} className="p-2 hover:bg-zinc-100 rounded-lg text-zinc-500">
+                              <button onClick={(e) => { e.stopPropagation(); handleEditVariant(v); }} className="p-2 hover:bg-zinc-100 rounded-lg text-zinc-500 hover:text-black transition-colors cursor-pointer" title="Editar paquete">
                                 <Edit3 size={16} />
                               </button>
-                              <button onClick={() => handleDeleteVariant(v.id)} className="p-2 hover:bg-red-50 text-red-500 rounded-lg">
+                              <button onClick={(e) => { e.stopPropagation(); handleDeleteVariant(v.id); }} className="p-2 hover:bg-red-50 hover:text-red-700 text-red-500 rounded-lg transition-colors cursor-pointer" title="Eliminar paquete">
                                 <Trash2 size={16} />
                               </button>
                             </td>
@@ -1012,13 +1384,42 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {combos.map((combo) => (
-                    <div key={combo.id} className="p-6 rounded-3xl bg-zinc-50 border border-zinc-200 space-y-4 flex flex-col justify-between">
+                  {(tempCombos || combos).map((combo, idx) => (
+                    <div 
+                      key={combo.id} 
+                      draggable={activeDragId === combo.id} 
+                      onDragStart={(e) => handleDragStart(e, idx, 'combo')}
+                      onDragOver={(e) => handleDragOver(e, idx, 'combo')}
+                      onDragEnd={handleDragEnd}
+                      className={`p-6 rounded-3xl bg-zinc-50 border border-zinc-200 space-y-4 flex flex-col justify-between transition-all ${
+                        draggedIndex === idx && draggedType === 'combo' ? 'opacity-40 scale-95 border-dashed border-indigo-400' : 'hover:shadow-md'
+                      }`}
+                    >
                       <div className="space-y-4">
                         <div className="flex justify-between items-start">
-                          <span className="bg-indigo-50 text-indigo-700 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">
-                            {combo.tag || 'Combo'}
-                          </span>
+                          <div className="flex items-center gap-1.5 text-zinc-400">
+                            <span 
+                              onMouseDown={() => setActiveDragId(combo.id)}
+                              onTouchStart={() => setActiveDragId(combo.id)}
+                              onMouseUp={() => setActiveDragId(null)}
+                              onTouchEnd={() => setActiveDragId(null)}
+                              className="cursor-grab active:cursor-grabbing p-1 hover:bg-zinc-200/50 rounded shrink-0" 
+                              title="Arrastrar para reordenar"
+                            >
+                              <GripVertical size={14} />
+                            </span>
+                            <div className="flex flex-col mr-1">
+                              <button onClick={(e) => { e.stopPropagation(); moveItem(idx, 'up', 'combo'); }} disabled={idx === 0} className="p-0.5 hover:bg-zinc-200/50 rounded disabled:opacity-30 cursor-pointer">
+                                <ChevronUp size={10} />
+                              </button>
+                              <button onClick={(e) => { e.stopPropagation(); moveItem(idx, 'down', 'combo'); }} disabled={idx === (tempCombos || combos).length - 1} className="p-0.5 hover:bg-zinc-200/50 rounded disabled:opacity-30 cursor-pointer">
+                                <ChevronDown size={10} />
+                              </button>
+                            </div>
+                            <span className="bg-indigo-50 text-indigo-700 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">
+                              {combo.tag || 'Combo'}
+                            </span>
+                          </div>
                           <span className={`text-[10px] font-bold uppercase tracking-wider ${combo.active ? 'text-emerald-600' : 'text-zinc-400'}`}>
                             {combo.active ? 'Activo' : 'Inactivo'}
                           </span>
@@ -1042,10 +1443,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
                           <span className="text-indigo-600 text-lg font-black">${combo.totalPrice.toLocaleString()} COP</span>
                         </div>
                         <div className="flex gap-1">
-                          <button onClick={() => handleEditCombo(combo)} className="p-2 hover:bg-white rounded-lg text-zinc-500 hover:text-black transition-colors" title="Editar Combo">
+                          <button onClick={(e) => { e.stopPropagation(); handleEditCombo(combo); }} className="p-2 hover:bg-white rounded-lg text-zinc-500 hover:text-black transition-colors" title="Editar Combo">
                             <Edit3 size={15} />
                           </button>
-                          <button onClick={() => handleDeleteCombo(combo.id)} className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors" title="Eliminar Combo">
+                          <button onClick={(e) => { e.stopPropagation(); handleDeleteCombo(combo.id); }} className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors" title="Eliminar Combo">
                             <Trash2 size={15} />
                           </button>
                         </div>
@@ -2076,6 +2477,42 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
               }}>
                 Guardar Cambios
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CUSTOM CONFIRMATION MODAL */}
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-[2rem] border border-zinc-100 shadow-2xl p-6 md:p-8 w-full max-w-sm space-y-6 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-600">
+              <Trash2 size={24} />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-black text-zinc-950 text-lg leading-tight">
+                {confirmModal.title}
+              </h3>
+              <p className="text-zinc-500 text-sm font-semibold leading-relaxed">
+                {confirmModal.message}
+              </p>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                className="flex-1 py-3 px-4 rounded-xl border border-zinc-200 text-zinc-700 font-bold text-xs hover:bg-zinc-50 active:bg-zinc-100 transition-all cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  confirmModal.onConfirm();
+                  setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                }}
+                className="flex-1 py-3 px-4 rounded-xl bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold text-xs transition-all shadow-md shadow-red-600/10 cursor-pointer"
+              >
+                Eliminar
+              </button>
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@ export interface Network {
   color: string; // Tailwind accent color class, e.g. "pink-500", "cyan-400", "blue-600", "red-600"
   slug: string;
   active: boolean;
+  order?: number;
 }
 
 export interface Service {
@@ -14,6 +15,7 @@ export interface Service {
   description: string;
   type: 'followers' | 'likes' | 'views' | 'comments' | 'custom';
   active: boolean;
+  order?: number;
 }
 
 export interface Variant {
@@ -25,6 +27,7 @@ export interface Variant {
   label?: 'best_seller' | 'best_price' | 'none'; // displayed as badges e.g. "Más vendido" or "Mejor precio"
   isBestValue?: boolean;
   active: boolean;
+  order?: number;
 }
 
 export interface Combo {
@@ -42,6 +45,7 @@ export interface Combo {
   originalPrice: number;
   active: boolean;
   tag?: string; // e.g. "Combo Viral"
+  order?: number;
 }
 
 export interface Coupon {

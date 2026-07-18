@@ -63,6 +63,13 @@ const cleanForFirestore = (obj: any): any => {
   return JSON.parse(JSON.stringify(obj));
 };
 
+const sortByOrder = (a: any, b: any) => {
+  const oa = a.order !== undefined ? a.order : 9999;
+  const ob = b.order !== undefined ? b.order : 9999;
+  if (oa !== ob) return oa - ob;
+  return String(a.id || '').localeCompare(String(b.id || ''));
+};
+
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [networks, setNetworksState] = useState<Network[]>(initialNetworks);
   const [services, setServicesState] = useState<Service[]>(initialServices);
@@ -128,10 +135,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           const snap = await getDocs(collection(db, colName));
           if (snap.empty) {
             console.log(`Collection "${colName}" is empty. Seeding defaults...`);
-            for (const item of defaultItems) {
+            const withOrder = defaultItems.map((item, idx) => ({
+              ...item,
+              order: item.order !== undefined ? item.order : idx + 1
+            }));
+            for (const item of withOrder) {
               await setDoc(doc(db, colName, item.id), cleanForFirestore(item));
             }
-            setter(defaultItems);
+            setter(withOrder);
           }
         } catch (colErr) {
           console.warn(`Could not verify/seed collection "${colName}":`, colErr);
@@ -174,25 +185,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }),
 
       onSnapshot(collection(db, 'networks'), (snap) => {
-        setNetworksState(snap.empty ? initialNetworks : snap.docs.map(d => d.data() as Network));
+        const data = snap.empty ? initialNetworks : snap.docs.map(d => d.data() as Network);
+        setNetworksState([...data].sort(sortByOrder));
       }, (err) => {
         console.warn("Real-time sync error on networks:", err);
       }),
 
       onSnapshot(collection(db, 'services'), (snap) => {
-        setServicesState(snap.empty ? initialServices : snap.docs.map(d => d.data() as Service));
+        const data = snap.empty ? initialServices : snap.docs.map(d => d.data() as Service);
+        setServicesState([...data].sort(sortByOrder));
       }, (err) => {
         console.warn("Real-time sync error on services:", err);
       }),
 
       onSnapshot(collection(db, 'variants'), (snap) => {
-        setVariantsState(snap.empty ? initialVariants : snap.docs.map(d => d.data() as Variant));
+        const data = snap.empty ? initialVariants : snap.docs.map(d => d.data() as Variant);
+        setVariantsState([...data].sort(sortByOrder));
       }, (err) => {
         console.warn("Real-time sync error on variants:", err);
       }),
 
       onSnapshot(collection(db, 'combos'), (snap) => {
-        setCombosState(snap.empty ? initialCombos : snap.docs.map(d => d.data() as Combo));
+        const data = snap.empty ? initialCombos : snap.docs.map(d => d.data() as Combo);
+        setCombosState([...data].sort(sortByOrder));
       }, (err) => {
         console.warn("Real-time sync error on combos:", err);
       }),
@@ -291,23 +306,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateNetworks = (newNets: Network[]) => {
-    setNetworksState(newNets);
-    syncCollection('networks', newNets);
+    const withOrder = newNets.map((item, idx) => ({ ...item, order: idx + 1 }));
+    setNetworksState(withOrder);
+    syncCollection('networks', withOrder);
   };
 
   const updateServices = (newServs: Service[]) => {
-    setServicesState(newServs);
-    syncCollection('services', newServs);
+    const withOrder = newServs.map((item, idx) => ({ ...item, order: idx + 1 }));
+    setServicesState(withOrder);
+    syncCollection('services', withOrder);
   };
 
   const updateVariants = (newVars: Variant[]) => {
-    setVariantsState(newVars);
-    syncCollection('variants', newVars);
+    const withOrder = newVars.map((item, idx) => ({ ...item, order: idx + 1 }));
+    setVariantsState(withOrder);
+    syncCollection('variants', withOrder);
   };
 
   const updateCombos = (newCombos: Combo[]) => {
-    setCombosState(newCombos);
-    syncCollection('combos', newCombos);
+    const withOrder = newCombos.map((item, idx) => ({ ...item, order: idx + 1 }));
+    setCombosState(withOrder);
+    syncCollection('combos', withOrder);
   };
 
   const updateCoupons = (newCoups: Coupon[]) => {

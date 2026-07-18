@@ -152,32 +152,33 @@ export const CombosAndPlans: React.FC = () => {
             {plans.filter(p => p.active !== false).map((plan) => (
               <div 
                 key={plan.id}
-                className="bg-zinc-900 text-white rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between relative overflow-hidden shadow-xl"
+                className="rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between relative overflow-hidden shadow-xl"
+                style={{ backgroundColor: '#18181B', color: '#FFFFFF' }}
               >
                 {/* Visual accent circles */}
                 <div className="absolute top-0 right-0 w-44 h-44 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
 
                 <div className="space-y-6 relative">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg md:text-xl font-extrabold tracking-tight">{plan.name}</h3>
-                    <span className="bg-white/10 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">
+                    <h3 className="text-lg md:text-xl font-extrabold tracking-tight" style={{ color: '#FFFFFF' }}>{plan.name}</h3>
+                    <span className="bg-white/10 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', color: '#FFFFFF' }}>
                       VIP Plan
                     </span>
                   </div>
 
-                  <div className="pb-4 border-b border-white/10">
-                    <span className="text-3xl md:text-4xl font-black">${plan.price.toLocaleString()}</span>
-                    <span className="text-xs text-zinc-400 font-bold ml-1.5">/ {plan.billing}</span>
+                  <div className="pb-4 border-b border-white/10" style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}>
+                    <span className="text-3xl md:text-4xl font-black" style={{ color: '#FFFFFF' }}>${plan.price.toLocaleString()}</span>
+                    <span className="text-xs font-bold ml-1.5" style={{ color: '#A1A1AA' }}>/ {plan.billing}</span>
                   </div>
 
                   {/* Feature list */}
                   <ul className="space-y-3">
                     {plan.features.map((feat, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5 text-xs text-zinc-300 font-medium">
-                        <span className="p-0.5 bg-white/10 text-indigo-400 rounded-full mt-0.5 shrink-0">
+                      <li key={idx} className="flex items-start gap-2.5 text-xs font-medium" style={{ color: '#E4E4E7' }}>
+                        <span className="p-0.5 rounded-full mt-0.5 shrink-0" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', color: '#818CF8' }}>
                           <Check size={12} strokeWidth={3} />
                         </span>
-                        <span>{feat}</span>
+                        <span style={{ color: '#E4E4E7' }}>{feat}</span>
                       </li>
                     ))}
                   </ul>
@@ -188,7 +189,8 @@ export const CombosAndPlans: React.FC = () => {
                     fullWidth 
                     variant="success" 
                     onClick={() => handleBuyPlan(plan)}
-                    className="flex items-center justify-center gap-1.5 py-3.5 bg-white text-black hover:bg-zinc-100 font-black rounded-2xl"
+                    className="flex items-center justify-center gap-1.5 py-3.5 font-black rounded-2xl cursor-pointer"
+                    style={{ backgroundColor: '#FFFFFF', color: '#18181B' }}
                   >
                     Contratar Plan VIP <ArrowRight size={16} />
                   </Button>
