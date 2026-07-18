@@ -1342,7 +1342,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
                         <div>
                           <div className="flex justify-between items-center">
                             <span className="text-[10px] font-black uppercase tracking-wider bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded">
-                              Disparador: {rec.triggerServiceType}
+                              Disparador: {
+                                rec.triggerServiceType === 'followers' ? 'Seguidores' :
+                                rec.triggerServiceType === 'likes' ? 'Likes' :
+                                rec.triggerServiceType === 'views' ? 'Reproducciones' :
+                                rec.triggerServiceType === 'comments' ? 'Comentarios' :
+                                (networks.find(n => n.id === rec.triggerServiceType)?.name || rec.triggerServiceType)
+                              }
                             </span>
                             <span className={`text-xs font-bold ${rec.active ? 'text-emerald-600' : 'text-zinc-400'}`}>
                               {rec.active ? 'Activo' : 'Oculto'}
@@ -2419,10 +2425,15 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToClient }) => {
                     onChange={(e) => setRecTriggerType(e.target.value)}
                     className="w-full bg-zinc-50 border border-zinc-200 rounded-xl py-3 px-4 text-xs font-semibold text-zinc-800 outline-none"
                   >
-                    <option value="followers">Al añadir Seguidores</option>
-                    <option value="likes">Al añadir Likes</option>
-                    <option value="views">Al añadir Reproducciones</option>
-                    <option value="comments">Al añadir Comentarios</option>
+                    <option value="followers">Al añadir Seguidores (Cualquier Red)</option>
+                    <option value="likes">Al añadir Likes (Cualquier Red)</option>
+                    <option value="views">Al añadir Reproducciones (Cualquier Red)</option>
+                    <option value="comments">Al añadir Comentarios (Cualquier Red)</option>
+                    <optgroup label="Por Red Social">
+                      {networks.map(n => (
+                        <option key={n.id} value={n.id}>Al añadir cualquier servicio de {n.name}</option>
+                      ))}
+                    </optgroup>
                   </select>
                 </div>
                 <div className="space-y-1">

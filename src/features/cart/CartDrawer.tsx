@@ -43,7 +43,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     addItemToCart,
     settings,
     addOrder,
-    clearCart
+    clearCart,
+    networks,
+    recommendations
   } = useApp();
 
   const [couponInput, setCouponInput] = useState('');
@@ -75,79 +77,172 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
   };
 
   // Recommendations: Based on cart contents & goals!
-  // Rule: Never recommend a service that is already in the cart.
+  // Rule: Never recommend a service that is already in the cart. Only recommend from the same social network.
   const getSmartRecommendations = () => {
     const recommended: any[] = [];
     const cartServiceIds = cart.map(i => i.service.id);
     const cartNetworkIds = cart.map(i => i.network.id);
 
-    // 1. Recommendation based on selected objective/goal
+    // 1. Database-driven dynamic recommendations (filtered to same network)
+    if (recommendations && recommendations.length > 0) {
+      recommendations.forEach(rec => {
+        if (!rec.active) return;
+        
+        // Find if any cart item matches this trigger
+        const triggeringItem = cart.find(item => 
+          item.service.type === rec.triggerServiceType || 
+          item.network.id === rec.triggerServiceType ||
+          item.service.id === rec.triggerServiceType
+        );
+
+        // ONLY suggest if we have a trigger AND the suggested service is in the SAME network as the triggering cart item!
+        if (triggeringItem && !cartServiceIds.includes(rec.suggestedServiceId)) {
+          const sugService = services.find(s => s.id === rec.suggestedServiceId && s.active);
+          if (sugService && sugService.networkId === triggeringItem.network.id) {
+            const serviceVariants = variants.filter(v => v.serviceId === sugService.id && v.active);
+            if (serviceVariants.length > 0) {
+              const sugVariant = serviceVariants.find(v => v.label === 'best_seller') || 
+                                 serviceVariants.find(v => v.quantity === 1000) || 
+                                 serviceVariants[0];
+              
+              const parentNet = networks.find(n => n.id === sugService.networkId);
+              recommended.push({
+                id: `db-rec-${rec.id}`,
+                service: sugService,
+                networkName: parentNet ? parentNet.name : sugService.networkId,
+                text: rec.message,
+                variant: sugVariant
+              });
+            }
+          }
+        }
+      });
+    }
+
+    // 2. Goal-based dynamic recommendations (restricted to the same networks in the cart)
     if (customerGoal) {
-      if (customerGoal.includes('seguidores') || customerGoal.includes('perfil')) {
-        // Recommend followers if not added
-        const igFollowers = services.find(s => s.id === 'ig-followers');
-        if (igFollowers && !cartServiceIds.includes('ig-followers')) {
+      const lowerGoal = customerGoal.toLowerCase();
+      const wantsGrowth = lowerGoal.includes('seguidores') || lowerGoal.includes('perfil') || lowerGoal.includes('crecimiento');
+      const wantsEngagement = lowerGoal.includes('interacción') || lowerGoal.includes('alcance') || lowerGoal.includes('clientes');
+
+      if (wantsGrowth) {
+        // Instagram
+        const igFollowers = services.find(s => s.id === 'ig-followers' && s.active);
+        if (igFollowers && !cartServiceIds.includes('ig-followers') && cartNetworkIds.includes('ig')) {
           recommended.push({
             id: 'rec-goal-ig-fol',
             service: igFollowers,
             networkName: 'Instagram',
             text: 'Recomendado para tu objetivo de crecimiento y perfil.',
-            variant: variants.find(v => v.serviceId === 'ig-followers' && v.quantity === 1000)
+            variant: variants.find(v => v.serviceId === 'ig-followers' && v.quantity === 1000 && v.active) || variants.find(v => v.serviceId === 'ig-followers' && v.active)
+          });
+        }
+        // TikTok
+        const tkFollowers = services.find(s => s.id === 'tk-followers' && s.active);
+        if (tkFollowers && !cartServiceIds.includes('tk-followers') && cartNetworkIds.includes('tk')) {
+          recommended.push({
+            id: 'rec-goal-tk-fol',
+            service: tkFollowers,
+            networkName: 'TikTok',
+            text: 'Recomendado para desbloquear lives y potenciar tu perfil.',
+            variant: variants.find(v => v.serviceId === 'tk-followers' && v.quantity === 1000 && v.active) || variants.find(v => v.serviceId === 'tk-followers' && v.active)
+          });
+        }
+        // YouTube
+        const ytSubscribers = services.find(s => s.id === 'yt-subscribers' && s.active);
+        if (ytSubscribers && !cartServiceIds.includes('yt-subscribers') && cartNetworkIds.includes('yt')) {
+          recommended.push({
+            id: 'rec-goal-yt-sub',
+            service: ytSubscribers,
+            networkName: 'YouTube',
+            text: 'Recomendado para acelerar la monetización de tu canal.',
+            variant: variants.find(v => v.serviceId === 'yt-subscribers' && v.quantity === 1000 && v.active) || variants.find(v => v.serviceId === 'yt-subscribers' && v.active)
+          });
+        }
+        // Facebook
+        const fbFollowers = services.find(s => s.id === 'fb-followers' && s.active);
+        if (fbFollowers && !cartServiceIds.includes('fb-followers') && cartNetworkIds.includes('fb')) {
+          recommended.push({
+            id: 'rec-goal-fb-fol',
+            service: fbFollowers,
+            networkName: 'Facebook',
+            text: 'Recomendado para ampliar la reputación de tu página.',
+            variant: variants.find(v => v.serviceId === 'fb-followers' && v.quantity === 1000 && v.active) || variants.find(v => v.serviceId === 'fb-followers' && v.active)
           });
         }
       }
-      if (customerGoal.includes('interacción') || customerGoal.includes('alcance')) {
-        const igLikes = services.find(s => s.id === 'ig-likes');
-        if (igLikes && !cartServiceIds.includes('ig-likes')) {
+
+      if (wantsEngagement) {
+        // Instagram
+        const igLikes = services.find(s => s.id === 'ig-likes' && s.active);
+        if (igLikes && !cartServiceIds.includes('ig-likes') && cartNetworkIds.includes('ig')) {
           recommended.push({
             id: 'rec-goal-ig-lik',
             service: igLikes,
             networkName: 'Instagram',
             text: 'Recomendado para impulsar interacción y alcance.',
-            variant: variants.find(v => v.serviceId === 'ig-likes' && v.quantity === 1000)
+            variant: variants.find(v => v.serviceId === 'ig-likes' && v.quantity === 1000 && v.active) || variants.find(v => v.serviceId === 'ig-likes' && v.active)
+          });
+        }
+        // TikTok
+        const tkLikes = services.find(s => s.id === 'tk-likes' && s.active);
+        if (tkLikes && !cartServiceIds.includes('tk-likes') && cartNetworkIds.includes('tk')) {
+          recommended.push({
+            id: 'rec-goal-tk-lik',
+            service: tkLikes,
+            networkName: 'TikTok',
+            text: 'Recomendado para empujar tus videos al feed Para Ti.',
+            variant: variants.find(v => v.serviceId === 'tk-likes' && v.quantity === 1000 && v.active) || variants.find(v => v.serviceId === 'tk-likes' && v.active)
+          });
+        }
+        // YouTube
+        const ytLikes = services.find(s => s.id === 'yt-likes' && s.active);
+        if (ytLikes && !cartServiceIds.includes('yt-likes') && cartNetworkIds.includes('yt')) {
+          recommended.push({
+            id: 'rec-goal-yt-lik',
+            service: ytLikes,
+            networkName: 'YouTube',
+            text: 'Recomendado para mejorar la visibilidad de tus videos.',
+            variant: variants.find(v => v.serviceId === 'yt-likes' && v.quantity === 1000 && v.active) || variants.find(v => v.serviceId === 'yt-likes' && v.active)
+          });
+        }
+        // Facebook
+        const fbLikes = services.find(s => s.id === 'fb-likes' && s.active);
+        if (fbLikes && !cartServiceIds.includes('fb-likes') && cartNetworkIds.includes('fb')) {
+          recommended.push({
+            id: 'rec-goal-fb-lik',
+            service: fbLikes,
+            networkName: 'Facebook',
+            text: 'Recomendado para dinamizar tus publicaciones.',
+            variant: variants.find(v => v.serviceId === 'fb-likes' && v.quantity === 1000 && v.active) || variants.find(v => v.serviceId === 'fb-likes' && v.active)
           });
         }
       }
     }
 
-    // 2. Cross-recommendation: If Instagram followers is added, recommend Instagram likes
+    // 3. Fallback Cross-recommendations (all restricted to the same network!)
     if (cartServiceIds.includes('ig-followers') && !cartServiceIds.includes('ig-likes')) {
-      const igLikes = services.find(s => s.id === 'ig-likes');
+      const igLikes = services.find(s => s.id === 'ig-likes' && s.active);
       if (igLikes) {
         recommended.push({
           id: 'rec-cross-ig-likes',
           service: igLikes,
           networkName: 'Instagram',
           text: '¡Crecimiento natural! Combina tus seguidores con likes reales.',
-          variant: variants.find(v => v.serviceId === 'ig-likes' && v.quantity === 1000)
+          variant: variants.find(v => v.serviceId === 'ig-likes' && v.quantity === 1000 && v.active) || variants.find(v => v.serviceId === 'ig-likes' && v.active)
         });
       }
     }
 
-    // 3. TikTok Views in cart, recommend TikTok Likes
     if (cartServiceIds.includes('tk-views') && !cartServiceIds.includes('tk-likes')) {
-      const tkLikes = services.find(s => s.id === 'tk-likes');
+      const tkLikes = services.find(s => s.id === 'tk-likes' && s.active);
       if (tkLikes) {
         recommended.push({
           id: 'rec-cross-tk-likes',
           service: tkLikes,
           networkName: 'TikTok',
           text: 'Multiplica el engagement. Añade likes a tus vistas.',
-          variant: variants.find(v => v.serviceId === 'tk-likes' && v.quantity === 1000)
-        });
-      }
-    }
-
-    // 4. Instagram but no TikTok or vice versa
-    if (cartNetworkIds.includes('ig') && !cartNetworkIds.includes('tk')) {
-      const tkFollowers = services.find(s => s.id === 'tk-followers');
-      if (tkFollowers && !cartServiceIds.includes('tk-followers')) {
-        recommended.push({
-          id: 'rec-cross-tk-fol',
-          service: tkFollowers,
-          networkName: 'TikTok',
-          text: '¡Expándete! Lleva tu presencia de Instagram también a TikTok.',
-          variant: variants.find(v => v.serviceId === 'tk-followers' && v.quantity === 1000)
+          variant: variants.find(v => v.serviceId === 'tk-likes' && v.quantity === 1000 && v.active) || variants.find(v => v.serviceId === 'tk-likes' && v.active)
         });
       }
     }
@@ -382,7 +477,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                               <p className="text-[10px] text-zinc-400 leading-tight mt-0.5">{rec.text}</p>
                             </div>
                             <button
-                              onClick={() => addItemToCart({ network: rec.service.networkId === 'ig' ? { id: 'ig', name: 'Instagram', icon: 'Instagram', color: 'pink-500', slug: 'instagram', active: true } : { id: 'tk', name: 'TikTok', icon: 'Music2', color: 'neutral-900', slug: 'tiktok', active: true }, service: rec.service, variant: rec.variant })}
+                              onClick={() => {
+                                const net = networks.find(n => n.id === rec.service.networkId) || {
+                                  id: rec.service.networkId,
+                                  name: rec.service.networkId === 'ig' ? 'Instagram' : rec.service.networkId === 'tk' ? 'TikTok' : rec.service.networkId === 'fb' ? 'Facebook' : 'YouTube',
+                                  icon: 'Sparkles',
+                                  color: 'indigo-600',
+                                  slug: rec.service.networkId,
+                                  active: true
+                                };
+                                addItemToCart({ network: net, service: rec.service, variant: rec.variant });
+                              }}
                               className="p-1.5 bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 rounded-xl transition-all cursor-pointer"
                               title="Agregar recomendación"
                             >
