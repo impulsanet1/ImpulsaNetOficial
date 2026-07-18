@@ -646,7 +646,7 @@ export const OrderConfigurator: React.FC = () => {
                                 setCustomerName(e.target.value);
                                 localStorage.setItem('impulsanet_customer_name', e.target.value);
                               }}
-                              placeholder="Ej. Sofía Rodríguez"
+                              placeholder="Ej. Emely Ruiz"
                               className="w-full bg-zinc-50 border border-zinc-200/60 hover:border-zinc-300 focus:border-indigo-600 focus:bg-white rounded-2xl py-2.5 px-3.5 text-xs font-bold text-zinc-800 outline-none transition-all placeholder:text-zinc-400"
                             />
                           </div>
